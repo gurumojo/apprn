@@ -2,33 +2,41 @@
 
 platform :ios do
 
-  desc "Install build dependencies"
-  lane :install do
-    sh "echo installing..."
-  end
-
   desc "Build ipa for testing"
-  lane :build do
-    UI.important "!!!"
-    UI.header "not implemented"
-  end
-
-  desc "Test a newly built ipa"
-  lane :test do
-    UI.important "!!!"
-    UI.header "not implemented"
+  lane :build do |options|
+    install
+    UI.success "ios build #build_ios_app"
+    #increment_build_number(build_number: ENV[""])
+    #scheme = (options[:release] ? "Release" : "Staging")
+    #build_ios_app(scheme: scheme)
+    test
   end
 
   desc "Deploy a new build to the App Store"
   lane :deploy do
-    UI.important "!!!"
-    UI.header "not implemented"
+    UI.success "ios deploy #upload_to_testflight"
+    #app_info(file: ./build/any.ipa)
+    #upload_to_testflight(skip_submission: true)
   end
 
   desc "Release a new version to the App Store"
   lane :release do
-    UI.important "!!!"
-    UI.header "not implemented"
+    UI.success "ios release #upload_to_app_store"
+    #upload_to_app_store
+  end
+
+  desc "Install ios build dependencies"
+  private_lane :install do
+    UI.success "ios install #cocoapods"
+    #cocoapods(clean: true)
+  end
+
+  desc "Test a newly built ipa"
+  private_lane :test do
+    UI.success "ios test #run_tests"
+    #run_tests
+    #appetize
+    #testfairy
   end
 
 end

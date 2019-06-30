@@ -15,22 +15,40 @@ Install _fastlane_ using
 or alternatively using `brew cask install fastlane`
 
 # Available Actions
+### build
+```
+fastlane build
+```
+Build for all target platforms
+### deploy
+```
+fastlane deploy
+```
+Deploy for all target platforms
+### release
+```
+fastlane release
+```
+Release for all target platforms
+### install
+```
+fastlane install
+```
+Install project build dependencies
+### clean
+```
+fastlane clean
+```
+Clean the project workspace
+
+----
+
 ## Android
-### android install
-```
-fastlane android install
-```
-Install build dependencies
 ### android build
 ```
 fastlane android build
 ```
 Build apk for testing
-### android test
-```
-fastlane android test
-```
-Test a newly built apk
 ### android deploy
 ```
 fastlane android deploy
@@ -40,26 +58,16 @@ Deploy a new build to the Play Store
 ```
 fastlane android release
 ```
-Release a new version from the Play Store
+Release a new version to the Play Store
 
 ----
 
 ## iOS
-### ios install
-```
-fastlane ios install
-```
-Install build dependencies
 ### ios build
 ```
 fastlane ios build
 ```
 Build ipa for testing
-### ios test
-```
-fastlane ios test
-```
-Test a newly built ipa
 ### ios deploy
 ```
 fastlane ios deploy

@@ -2,31 +2,39 @@
 
 platform :android do
 
-  desc "Install build dependencies"
-  lane :install do
-    sh "yarn && yarn test"
-  end
-
   desc "Build apk for testing"
   lane :build do
-    gradle(task: "clean assembleRelease", project_dir: ENV["PLATFORM_WORKDIR"])
-  end
-
-  desc "Test a newly built apk"
-  lane :test do
-    gradle(task: "test", project_dir: ENV["PLATFORM_WORKDIR"])
+    install
+    UI.success "android build #gradle assembleRelease"
+    #gradle(task: "clean assembleRelease", project_dir: ENV["PLATFORM_WORKDIR"])
+    test
   end
 
   desc "Deploy a new build to the Play Store"
   lane :deploy do
-    gradle(task: "clean assembleRelease", project_dir: ENV["PLATFORM_WORKDIR"])
-    upload_to_play_store
+    UI.success "android deploy #upload_to_play_store"
+	UI.important "how to handle variants?"
+    #app_info(file: ./build/any.apk)
+    #upload_to_play_store(track: "internal")
   end
 
-  desc "Release a new version from the Play Store"
+  desc "Release a new version to the Play Store"
   lane :release do
-    gradle(task: "clean assembleRelease", project_dir: ENV["PLATFORM_WORKDIR"])
-    upload_to_play_store
+    UI.success "android release #upload_to_play_store"
+    #upload_to_play_store(track_promote_to: "production")
+  end
+
+  desc "Install android build dependencies"
+  private_lane :install do
+    UI.success "android install #dependency ???"
+  end
+
+  desc "Test a newly built apk"
+  private_lane :test do
+    UI.success "android test #gradle test"
+    #gradle(task: "test", project_dir: ENV["PLATFORM_WORKDIR"])
+    #appetize
+    #testfairy
   end
 
 end

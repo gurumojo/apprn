@@ -3,13 +3,17 @@ module Fastlane
     class EnsurePlatformWorkdirAction < Action
 
       def self.run(params)
-        platform = ENV["FASTLANE_PLATFORM_NAME"]
-        workdir = ENV["PWD"]
-        if workdir["#{platform}/fastlane"]
-          UI.success "Already in #{workdir}"
+        platform = ENV["FASTLANE_PLATFORM_NAME"] || ENV["PLATFORM_NAME"]
+        if platform
+          workdir = ENV["PWD"]
+          if workdir["#{platform}/fastlane"]
+            UI.success "Already in #{workdir}"
+          else
+            ENV["PLATFORM_WORKDIR"] = platform
+            UI.success "Set workdir for '#{platform}'"
+          end
         else
-          ENV["PLATFORM_WORKDIR"] = platform
-          UI.success "Set workdir for '#{platform}'"
+          UI.success "No platform set"
         end
       end
 

@@ -7,15 +7,13 @@ React Native app sandbox
 Prerequisites
 -------------
 
- *  node runtime with react-native-cli and yarn
+ * nodejs runtime with react-native-cli and yarn
 
-	# use your OS-specific method to ensure node is installed
-	npm install -g react-native-cli yarn
+	`npm install -g react-native-cli yarn`
 
- *  ruby runtime with fastlane
+ * ruby runtime with fastlane
 
-	# use your OS-specific method to ensure ruby is installed
-	sudo gem install fastlane -NV
+	`sudo gem install fastlane -NV`
 
 
 Development

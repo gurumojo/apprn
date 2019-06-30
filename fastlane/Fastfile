@@ -1,12 +1,7 @@
 # Project top level fastlane.tools configuration
 #
-# For a list of all available actions, check out
-#
-#  https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#  https://docs.fastlane.tools/plugins/available-plugins
+# https://docs.fastlane.tools/actions
+# https://docs.fastlane.tools/plugins/available-plugins
 #
 
 #opt_out_usage
@@ -15,13 +10,15 @@
 import "../android/fastlane/Fastfile"
 import "../ios/fastlane/Fastfile"
 
-default_platform(:android)
+targets = ["android", "ios"]
 
 before_all do |lane, options|
-  ensure_git_branch
-  ensure_git_status_clean
-  #git_pull
-  ensure_platform_workdir
+  if ENV["FASTLANE_PLATFORM_NAME"]
+    ensure_git_branch
+    #ensure_git_status_clean
+    #git_pull
+    ensure_platform_workdir
+  end
 end
 
 error do |lane, exception, options|
@@ -32,5 +29,48 @@ error do |lane, exception, options|
   UI.error "#{platform} #{lane} failure"
 end
 
-# ~/.pki/googleapis/gurumojo-demo.json
-# ~/.pki/googleapis/net.gurumojo.api.client.rn/*.json
+desc "Build for all target platforms"
+lane :build do
+  Dir.chdir('..') do
+    unless File.exist?("node_modules")
+      install
+    end
+  end
+  targets.each do |x|
+    sh "fastlane #{x} build"
+  end
+end
+
+desc "Deploy for all target platforms"
+lane :deploy do
+  targets.each do |x|
+    sh "fastlane #{x} deploy"
+  end
+end
+
+desc "Release for all target platforms"
+lane :release do
+  targets.each do |x|
+    sh "fastlane #{x} release"
+  end
+end
+
+desc "Install project build dependencies"
+lane :install do
+  sh "yarn"
+  sh "yarn run lint"
+  sh "yarn test"
+end
+
+desc "Clean the project workspace"
+lane :clean do
+  Dir.chdir('..') do
+    sh "rm -rf node_modules"
+    #sh "git reset --hard"
+  end
+end
+
+#~/.pki/googleapis/gurumojo-demo.json
+#~/.pki/googleapis/net.gurumojo.api.client.rn/<env>.json
+
+# UI [:select, :message, :verbose, :error, :input, :password, :header, :command, :success, :confirm, :important, :user_error!, :command_output, :deprecated, :content_error, :interactive?, :crash!, :not_implemented, :shell_error!, :build_failure!, :test_failure!, :abort_with_message!]
