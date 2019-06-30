@@ -1,0 +1,32 @@
+# Import for top level fastlane.tools configuration
+
+platform :android do
+
+  desc "Install build dependencies"
+  lane :install do
+    sh "yarn && yarn test"
+  end
+
+  desc "Build apk for testing"
+  lane :build do
+    gradle(task: "clean assembleRelease", project_dir: ENV["PLATFORM_WORKDIR"])
+  end
+
+  desc "Test a newly built apk"
+  lane :test do
+    gradle(task: "test", project_dir: ENV["PLATFORM_WORKDIR"])
+  end
+
+  desc "Deploy a new build to the Play Store"
+  lane :deploy do
+    gradle(task: "clean assembleRelease", project_dir: ENV["PLATFORM_WORKDIR"])
+    upload_to_play_store
+  end
+
+  desc "Release a new version from the Play Store"
+  lane :release do
+    gradle(task: "clean assembleRelease", project_dir: ENV["PLATFORM_WORKDIR"])
+    upload_to_play_store
+  end
+
+end

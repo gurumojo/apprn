@@ -1,0 +1,34 @@
+# Import for top level fastlane.tools configuration
+
+platform :ios do
+
+  desc "Install build dependencies"
+  lane :install do
+    sh "echo installing..."
+  end
+
+  desc "Build ipa for testing"
+  lane :build do
+    UI.important "!!!"
+    UI.header "not implemented"
+  end
+
+  desc "Test a newly built ipa"
+  lane :test do
+    UI.important "!!!"
+    UI.header "not implemented"
+  end
+
+  desc "Deploy a new build to the App Store"
+  lane :deploy do
+    UI.important "!!!"
+    UI.header "not implemented"
+  end
+
+  desc "Release a new version to the App Store"
+  lane :release do
+    UI.important "!!!"
+    UI.header "not implemented"
+  end
+
+end

@@ -1,0 +1,36 @@
+# Project top level fastlane.tools configuration
+#
+# For a list of all available actions, check out
+#
+#  https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#  https://docs.fastlane.tools/plugins/available-plugins
+#
+
+#opt_out_usage
+#update_fastlane
+
+import "../android/fastlane/Fastfile"
+import "../ios/fastlane/Fastfile"
+
+default_platform(:android)
+
+before_all do |lane, options|
+  ensure_git_branch
+  ensure_git_status_clean
+  #git_pull
+  ensure_platform_workdir
+end
+
+error do |lane, exception, options|
+  platform = ENV["FASTLANE_PLATFORM_NAME"]
+  if options[:debug]
+    UI.error platform, lane, exception, options
+  end
+  UI.error "#{platform} #{lane} failure"
+end
+
+# ~/.pki/googleapis/gurumojo-demo.json
+# ~/.pki/googleapis/net.gurumojo.api.client.rn/*.json
