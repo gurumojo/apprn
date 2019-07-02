@@ -3,9 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "bundle exec fastlane all build",
-    "deploy": "bundle exec fastlane all deploy",
+    "build": "bundle exec fastlane build",
+    "deploy": "bundle exec fastlane deploy",
     "lint": "npx eslint -c .eslintrc .",
+    "release": "bundle exec fastlane release",
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest"
   },
