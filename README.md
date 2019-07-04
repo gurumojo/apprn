@@ -1,7 +1,7 @@
 apprn
 =====
 
-React Native app sandbox
+React Native app sandbox ![bitrise build status](https://app.bitrise.io/app/550e1e56bfd157b2.svg?token=Udkvayj-qzKN_BFSjV-BKw "Bitrise Build Status")
 
 
 Prerequisites
@@ -59,6 +59,6 @@ With an emulator running, or a device connected:
 	react-native run-ios  # works on MacOS only
 	react-native run-android  # works anywhere
 
-Local changes are reflected immediately in attached runtimes via watch methods
-built into react-native-cli commands for working on the App.
+Local application file changes are reflected immediately upon reloading the app
+in a running emulator or attached device.
 
