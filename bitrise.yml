@@ -43,18 +43,23 @@ workflows:
             yarn
             yarn run lint
             yarn test
-        - is_debug_mode: $DEBUG
     - android-lint@0.9.6:
         inputs:
-        - variant: $VARIANT
         - module: $MODULE
+        - variant: $VARIANT
         - project_location: $BITRISE_SOURCE_DIR/$PROJECT_LOCATION
+    - android-unit-test@0.11.1:
+        inputs:
+        - module: $MODULE
+        - variant: $VARIANT
+        - is_debug: $DEBUG_TRUE_FALSE
     - install-missing-android-tools@2.3.7:
         inputs:
         - gradlew_path: $PROJECT_LOCATION/gradlew
     - android-build@0.10.0:
         inputs:
         - project_location: $PROJECT_LOCATION
+    - sign-apk@1.3.1: {}
     - cache-push@2.2.0:
         inputs:
         - is_debug_mode: $DEBUG

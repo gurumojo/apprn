@@ -12,19 +12,25 @@ trigger_map:
 - push_branch: "release"
   workflow: release
 
+app:
+  envs:
+  - DEBUG: yes
+  - DEBUG_TRUE_FALSE: 'true'
+
 workflows:
   _run_from_repo:
     steps:
     - activate-ssh-key@4.0.3:
         run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-    - git-clone@4.0.14: {}
+    - git-clone@4.0.14:
+        inputs:
+        - manual_merge: 'no'
     - script@1.1.5:
-        title: using ./bitrise.yml
+        title: bitrise_from_repo
         inputs:
         - content: |-
-            #!/bin/bash
-            set -ex
-            bitrise run "${BITRISE_TRIGGERED_WORKFLOW_ID}"
+            #!/bin/bash -ex
+            bitrise run $BITRISE_TRIGGERED_WORKFLOW_ID
 
   integrate:
     after_run:
