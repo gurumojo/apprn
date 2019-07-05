@@ -1,7 +1,9 @@
 apprn
 =====
 
-React Native app sandbox ![bitrise build status](https://app.bitrise.io/app/550e1e56bfd157b2.svg?token=Udkvayj-qzKN_BFSjV-BKw "Bitrise Build Status")
+React Native app sandbox
+
+![app.bitrise.io](https://app.bitrise.io/app/550e1e56bfd157b2.svg?token=Udkvayj-qzKN_BFSjV-BKw "Bitrise Build Status")
 
 
 Prerequisites

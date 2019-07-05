@@ -1,0 +1,39 @@
+---
+format_version: 1.4.0
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+
+trigger_map:
+- push_branch: "*"
+  workflow: integrate
+- pull_request_target_branch: "*"
+  workflow: integrate
+- push_branch: "candidate/*"
+  workflow: deploy
+- push_branch: "release"
+  workflow: release
+
+workflows:
+  _run_from_repo:
+    steps:
+    - activate-ssh-key@4.0.3:
+        run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+    - git-clone@4.0.14: {}
+    - script@1.1.5:
+        title: using ./bitrise.yml
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            bitrise run "${BITRISE_TRIGGERED_WORKFLOW_ID}"
+
+  integrate:
+    after_run:
+    - _run_from_repo
+
+  deploy:
+    after_run:
+    - _run_from_repo
+
+  release:
+    after_run:
+    - _run_from_repo

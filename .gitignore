@@ -51,3 +51,6 @@ fastlane/test_output
 
 # Bundle artifact
 *.jsbundle
+
+# bitrise.io
+.bitrise.secrets.yml 
