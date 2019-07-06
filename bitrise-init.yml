@@ -1,36 +1,123 @@
----
-format_version: 1.4.0
+format_version: "8"
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 trigger_map:
-- push_branch: "*"
+- push_branch: '*'
   workflow: integrate
-- pull_request_target_branch: "*"
+- pull_request_target_branch: '*'
   workflow: integrate
-- push_branch: "candidate/*"
+- push_branch: 'candidate/*'
   workflow: deploy
-- push_branch: "release"
+- push_branch: 'release'
   workflow: release
+
+# tag based release management
+#trigger_map:
+#- tag: v*.*.*
+#  workflow: deploy-to-production
+#- push_branch: master
+#  workflow: deploy-to-integration
+#- push_branch: "*"
+#  workflow: deploy-to-development
+#- pull_request_target_branch: "*"
+#  workflow: deploy-to-development
 
 app:
   envs:
-  - DEBUG: yes
-  - DEBUG_TRUE_FALSE: 'true'
+  - DEBUG: 1
+  - DEBUG_YES_NO: 'yes'
+  - DEBUG_TRUE_FALSE: 'false'
 
 workflows:
   _run_from_repo:
+    description: run config saved in a git repository clone
     steps:
     - activate-ssh-key@4.0.3:
         run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+        inputs:
+        - verbose: $DEBUG_TRUE_FALSE
     - git-clone@4.0.14:
         inputs:
         - manual_merge: 'no'
     - script@1.1.5:
-        title: bitrise_from_repo
+        title: Bitrise via Repository
         inputs:
         - content: |-
             #!/bin/bash -ex
+            # execute workflow defined in git clone
             bitrise run $BITRISE_TRIGGERED_WORKFLOW_ID
+        - is_debug: $DEBUG_YES_NO
+    - script@1.1.5:
+        title: Prepare Slack Notification
+        is_always_run: true
+        inputs:
+        - content: bin/slack-env
+        - is_debug: $DEBUG_YES_NO
+    - slack@3.1.3:
+        inputs:
+        - channel: "$SLACK_CHANNEL"
+        - channel_on_error: "$SLACK_CHANNEL_ON_ERROR"
+        - color: "$SLACK_COLOR_CODE"
+        - color_on_error: "$SLACK_COLOR_CODE_ON_ERROR"
+        - emoji: "$SLACK_EMOJI"
+        - emoji_on_error: "$SLACK_EMOJI_ON_ERROR"
+        - footer: "$SLACK_FOOTER_TEXT"
+        - footer_icon: "$SLACK_FOOTER_ICON_URL"
+        - from_username: "$SLACK_BOT_USERNAME"
+        - from_username_on_error: "$SLACK_BOT_USERNAME_ON_ERROR"
+        - icon_url: "$SLACK_ICON_URL"
+        - icon_url_on_error: "$SLACK_ICON_URL_ON_ERROR"
+        - image_url: "$SLACK_IMAGE_URL"
+        - image_url_on_error: "$SLACK_IMAGE_URL_ON_ERROR"
+        - is_debug_mode: $DEBUG_YES_NO
+        - pretext: "$SLACK_HEADER"
+        - pretext_on_error: "$SLACK_HEADER_ON_ERROR"
+        - text: "$SLACK_MESSAGE"
+        - text_on_error: "$SLACK_MESSAGE_ON_ERROR"
+        - thumb_url: "$SLACK_THUMBNAIL_URL"
+        - thumb_url_on_error: "$SLACK_THUMBNAIL_URL_ON_ERROR"
+        - title_link: "$SLACK_HYPERLINK"
+        - title_on_error: "$SLACK_HYPERLINK_ON_ERROR"
+        - webhook_url: "$SLACK_WEBHOOK_URL"
+
+### - Debug: false
+### - WebhookURL: *****
+### - APIToken: 
+### - Channel: 
+### - ChannelOnError: 
+### - Text:    
+### - TextOnError: 
+### - IconEmoji: :thumbsup:
+### - IconEmojiOnError: :thumbsdown:
+### - IconURL: https://bitrise-public-content-production.s3.amazonaws.com/user-icons/avatar-default.png
+### - IconURLOnError: https://png-5.findicons.com/files/icons/1671/simplicio/128/notification_error.png
+### - LinkNames: true
+### - Username: 
+### - UsernameOnError: 
+### - Color: good
+### - ColorOnError: danger
+### - PreText: *SUCCESS:  build *
+### - PreTextOnError: *FAILURE:  build *
+### - AuthorName: 
+### - Title: 
+### - TitleOnError: 
+### - TitleLink: 
+### - Message: 
+### - MessageOnError: 
+### - ImageURL: 
+### - ImageURLOnError: https://mir-s3-cdn-cf.behance.net/project_modules/disp/81f54f24872545.5633b77b7c7b3.jpg
+### - ThumbURL: https://img.icons8.com/nolan/128/000000/physics.png
+### - ThumbURLOnError: https://img.icons8.com/doodle/128/000000/beautiful-flower.png
+### - Footer: boingboing
+### - FooterIcon: https://platform.slack-edge.com/img/default_application_icon.png
+### - TimeStamp: true
+### - Fields: App|
+### Branch|
+### Workflow|integrate
+### 
+### - Buttons: View App|
+### View Build|
+### Install Page|
 
   integrate:
     after_run:
@@ -43,3 +130,207 @@ workflows:
   release:
     after_run:
     - _run_from_repo
+
+
+# Input Environment Variables
+#
+#
+# Android Build
+#
+# MODULE
+# PROJECT_LOCATION
+# VARIANT
+#
+#
+# Android Lint
+#
+# MODULE
+# PROJECT_LOCATION
+# VARIANT
+#
+#
+# Android Unit Test
+#
+# MODULE
+# PROJECT_LOCATION
+# VARIANT
+#
+#
+# Cache Pull
+#
+# DEBUG_TRUE_FALSE
+#
+#
+# Cache Push
+#
+# DEBUG_TRUE_FALSE
+#
+#
+# Deploy to Bitrise.io
+#
+# DEBUG_TRUE_FALSE
+#
+#
+# Install, Lint, Unit Test
+#
+# DEBUG_YES_NO
+#
+#
+# Install Missing Android Tools
+#
+# PROJECT_LOCATION/gradlew
+#
+#
+# Prepare Slack Notification
+#
+# DEBUG_YES_NO
+#
+#
+# Sign APK
+#
+# SIGNED_ARTIFACT_NAME
+#
+#
+# Set iOS Info.plist unified
+#
+# APP_ICON_ASSET_CATALOG
+# APP_LAUNCH_IMAGES_ASSET_CATALOG
+# APP_LAUNCH_SCREEN
+# BUNDLE_DISPLAY_NAME
+# BUNDLE_IDENTIFIER
+# BUNDLE_NAME
+# BUNDLE_VERSION
+# BUNDLE_VERSION_SHORT
+# INFO_PLIST_FILE
+#
+#
+# Slack
+#
+# DEBUG_YES_NO
+# SLACK_BOT_USERNAME
+# SLACK_BOT_USERNAME_ON_ERROR
+# SLACK_CHANNEL
+# SLACK_CHANNEL_ON_ERROR
+# SLACK_COLOR_CODE
+# SLACK_COLOR_CODE_ON_ERROR
+# SLACK_EMOJI
+# SLACK_EMOJI_ON_ERROR
+# SLACK_FOOTER_ICON_URL
+# SLACK_FOOTER_TEXT
+# SLACK_HEADER
+# SLACK_HEADER_ON_ERROR
+# SLACK_HYPERLINK
+# SLACK_HYPERLINK_ON_ERROR
+# SLACK_ICON_URL
+# SLACK_ICON_URL_ON_ERROR
+# SLACK_IMAGE_URL
+# SLACK_IMAGE_URL_ON_ERROR
+# SLACK_MESSAGE
+# SLACK_MESSAGE_ON_ERROR
+# SLACK_THUMBNAIL_URL
+# SLACK_THUMBNAIL_URL_ON_ERROR
+#
+#
+# Xcode Analyze
+#
+# FORCE_CODE_SIGN_IDENTITY
+# FORCE_PROVISIONING_PROFILE_UUID
+#
+#
+# Xcode Archive
+#
+# CLEAN_BUILD_YES_NO
+# CONFIGURATION_NAME
+# DEVELOPER_PORTAL_TEAM
+# EXPORT_ZIP_YES_NO
+# FORCE_CODESIGN_IDENTITY
+# FORCE_DEVELOPER_PORTAL_TEAM
+# FORCE_PROVISIONING_PROFILE_SPECIFIER
+# FORCE_PROVISIONING_PROFILE_UUID
+# XCODEBUILD_EXPORT_METHOD
+# XCODEBUILD_OPTIONS
+#
+#
+#
+#
+# Output Environment Variables
+#
+#
+# Activate SSH key
+#
+# SSH_AUTH_SOCK
+#
+#
+# Android Build
+#
+# BITRISE_AAB_PATH
+# BITRISE_AAB_PATH_LIST
+# BITRISE_APK_PATH
+# BITRISE_APK_PATH_LIST
+# BITRISE_MAPPING_PATH
+#
+#
+# Android Sign
+#
+# BITRISE_AAB_PATH
+# BITRISE_APK_PATH
+# BITRISE_SIGNED_AAB_PATH
+# BITRISE_SIGNED_APK_PATH
+#
+#
+# APK Info
+#
+# ANDROID_APK_FILE_SIZE
+# ANDROID_APP_NAME
+# ANDROID_APP_PACKAGE_NAME
+# ANDROID_APP_VERSION_CODE
+# ANDROID_APP_VERSION_NAME
+# ANDROID_ICON_PATH
+#
+#
+# Bitrise.io Cache:Pull
+#
+# BITRISE_CACHE_INFO_PATH
+#
+#
+# Deploy to Bitrise.io
+#
+# BITRISE_PUBLIC_INSTALL_PAGE_URL
+# BITRISE_PUBLIC_INSTALL_PAGE_URL_MAP
+#
+#
+# Git Clone Repository
+#
+# GIT_CLONE_COMMIT_AUTHOR_EMAIL
+# GIT_CLONE_COMMIT_AUTHOR_NAME
+# GIT_CLONE_COMMIT_COMMITER_EMAIL
+# GIT_CLONE_COMMIT_COMMITER_NAME
+# GIT_CLONE_COMMIT_COUNT
+# GIT_CLONE_COMMIT_HASH
+# GIT_CLONE_COMMIT_MESSAGE_BODY
+# GIT_CLONE_COMMIT_MESSAGE_SUBJECT
+#
+#
+# IPA Info
+#
+# IOS_APP_DISPLAY_NAME
+# IOS_APP_NAME
+# IOS_APP_PROFILE_NAME
+# IOS_APP_VERSION_CODE
+# IOS_APP_VERSION_NAME
+# IOS_ICON_PATH
+# IOS_IPA_FILE_SIZE
+# IOS_IPA_PACKAGE_NAME
+#
+#
+# Xcode Archive & Export for iOS
+#
+# BITRISE_IPA_PATH
+# BITRISE_APP_DIR_PATH
+# BITRISE_DSYM_DIR_PATH
+# BITRISE_DSYM_PATH
+# BITRISE_XCARCHIVE_PATH
+# BITRISE_XCARCHIVE_ZIP_PATH
+# BITRISE_XCODE_ARCHIVE_RAW_RESULT_TEXT_PATH
+# BITRISE_IDEDISTRIBUTION_LOGS_PATH
+

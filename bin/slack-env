@@ -1,0 +1,136 @@
+#!/bin/bash -e
+
+# BITRISEIO_GIT_REPOSITORY_OWNER=gurumojo
+# BITRISEIO_GIT_REPOSITORY_SLUG=apprn
+# BITRISE_APK_PATH=/Users/vagrant/deploy/app-debug.apk
+# BITRISE_APK_PATH_LIST=/Users/vagrant/deploy/app-debug.apk
+# BITRISE_APP_SLUG=550e1e56bfd157b2
+# BITRISE_APP_TITLE=apprn
+# BITRISE_APP_URL=https://app.bitrise.io/app/550e1e56bfd157b2
+# BITRISE_BUILD_NUMBER=16
+# BITRISE_BUILD_SLUG=7d63217c57353536
+# BITRISE_BUILD_STATUS=1
+# BITRISE_BUILD_TRIGGER_TIMESTAMP=1562442693
+# BITRISE_BUILD_URL=https://app.bitrise.io/build/7d63217c57353536
+# BITRISE_EXPORT_METHOD=development
+# BITRISE_GIT_BRANCH=master
+# BITRISE_GIT_COMMIT=c8db78de3e40d03379db1ad52322b1e6605e945e
+# BITRISE_GIT_MESSAGE=fleshed out bitrise.io configs
+# BITRISE_PUBLIC_INSTALL_PAGE_URL=https://app.bitrise.io/artifact/17750881/p/450b60ee8bc99bb6e66fa25c57594688
+# GIT_CLONE_COMMIT_AUTHOR_EMAIL=theguy@gurumojo.net
+# GIT_CLONE_COMMIT_AUTHOR_NAME=gurumojo
+# GIT_CLONE_COMMIT_COMMITER_EMAIL=theguy@gurumojo.net
+# GIT_CLONE_COMMIT_COMMITER_NAME=gurumojo
+# GIT_CLONE_COMMIT_COUNT=12
+# GIT_CLONE_COMMIT_HASH=c8db78de3e40d03379db1ad52322b1e6605e945e
+# GIT_CLONE_COMMIT_MESSAGE_BODY=
+# GIT_CLONE_COMMIT_MESSAGE_SUBJECT=fleshed out bitrise.io configs
+# GIT_REPOSITORY_URL=git@github.com:gurumojo/apprn.git
+# HOST_NAME=prd-std-r-vs4mac-stable-190706190320-sMMJhbcRRGNfcTGdJQaFda
+
+##### BITRISEIO_GIT_REPOSITORY_OWNER=gurumojo
+##### BITRISEIO_GIT_REPOSITORY_SLUG=apprn
+##### BITRISEIO_STACK_ID=osx-vs4mac-stable
+##### BITRISE_APP_SLUG=550e1e56bfd157b2
+##### BITRISE_APP_TITLE=apprn
+##### BITRISE_APP_URL=https://app.bitrise.io/app/550e1e56bfd157b2
+##### BITRISE_BUILD_NUMBER=21
+##### BITRISE_BUILD_SLUG=f42d2ebb5891b35b
+##### BITRISE_BUILD_STATUS=1
+##### BITRISE_BUILD_TRIGGER_TIMESTAMP=1562563971
+##### BITRISE_BUILD_URL=https://app.bitrise.io/build/f42d2ebb5891b35b
+##### BITRISE_GIT_BRANCH=master
+##### BITRISE_GIT_COMMIT=096d03dd561842779d499c9b45f08631635e964a
+##### BITRISE_GIT_MESSAGE=fleshed out bitrise.io configs
+##### BITRISE_KEYCHAIN=bitrise.keychain
+##### BITRISE_KEYCHAIN_PASSWORD=vagrant
+##### BITRISE_OSX_STACK_REV_ID=v2019_06_12_1
+##### BITRISE_STEP_FORMATTED_OUTPUT_FILE_PATH=/var/folders/6q/wgy6jtp12w5gzgm9lzcglpqw0000gn/T/bitrise268036296/formatted_output.md
+##### BITRISE_TEST_RESULT_DIR=/var/folders/6q/wgy6jtp12w5gzgm9lzcglpqw0000gn/T/test_results351230343/test_result013568015
+##### BITRISE_TRIGGERED_WORKFLOW_ID=integrate
+##### BITRISE_TRIGGERED_WORKFLOW_TITLE=integrate
+##### DOT_BITRISE_PROFILE_LOADED=1
+##### HOST_NAME=prd-std-r-vs4mac-stable-190708053115-iR5PEw6AEVhapKRhdxXtYi
+
+
+#envman add --key SLACK_BOT_USERNAME \
+#	--value "app.bitrise.io"
+
+#envman add --key SLACK_BOT_USERNAME_ON_ERROR \
+#	--value ""
+
+#envman add --key SLACK_CHANNEL \
+#	--value "#notify"
+
+#envman add --key SLACK_CHANNEL_ON_ERROR \
+#	--value "#$BITRISE_APP_TITLE-failure"
+
+envman add --key SLACK_COLOR_CODE \
+	--value good
+
+envman add --key SLACK_COLOR_CODE_ON_ERROR \
+	--value danger
+
+#envman add --key SLACK_COLOR_CODE \
+#	--value "#2F4F4F"
+
+#envman add --key SLACK_COLOR_CODE_ON_ERROR \
+#	--value "#B22222"
+
+envman add --key SLACK_EMOJI \
+	--value ":thumbsup:"
+
+envman add --key SLACK_EMOJI_ON_ERROR \
+	--value ":thumbsdown:"
+
+envman add --key SLACK_FOOTER_ICON_URL \
+	--value "https://bitrise-public-content-production.s3.amazonaws.com/user-icons/avatar-default.png"
+	#--value "https://platform.slack-edge.com/img/default_application_icon.png"
+
+envman add --key SLACK_FOOTER_TEXT \
+	--value "$HOST_NAME"
+
+envman add --key SLACK_HEADER \
+	--value "SUCCESS: $BITRISE_APP_TITLE build $BITRISE_BUILD_SLUG"
+
+envman add --key SLACK_HEADER_ON_ERROR \
+	--value "FAILURE: $BITRISE_APP_TITLE build $BITRISE_BUILD_SLUG"
+
+envman add --key SLACK_HYPERLINK \
+	--value "$BITRISE_PUBLIC_INSTALL_PAGE_URL"
+
+envman add --key SLACK_HYPERLINK_ON_ERROR \
+	--value "$BITRISE_BUILD_URL"
+
+envman add --key SLACK_ICON_URL \
+	--value "https://bitrise-public-content-production.s3.amazonaws.com/user-icons/avatar-default.png"
+
+envman add --key SLACK_ICON_URL_ON_ERROR \
+	--value "https://png-5.findicons.com/files/icons/1671/simplicio/128/notification_error.png"
+
+#envman add --key SLACK_IMAGE_URL \
+#	--value "https://farm9.staticflickr.com/8110/28899363330_0ce168a7fc_b.jpg"
+
+#envman add --key SLACK_IMAGE_URL \
+#	--value "https://live.staticflickr.com/118/277103494_77af94d6f0_b.jpg"
+
+#envman add --key SLACK_IMAGE_URL \
+#	--value "https://farm8.staticflickr.com/7487/15554983054_24b4bfa9bf.jpg"
+
+#envman add --key SLACK_IMAGE_URL \
+#	--value "https://farm4.staticflickr.com/3850/15071624838_8783a68949.jpg"
+
+#envman add --key SLACK_IMAGE_URL_ON_ERROR \
+#	--value "https://mir-s3-cdn-cf.behance.net/project_modules/disp/81f54f24872545.5633b77b7c7b3.jpg"
+
+envman add --key SLACK_MESSAGE \
+	--value "$GIT_CLONE_COMMIT_COMMITER_NAME $GIT_REPOSITORY_URL $BITRISE_GIT_BRANCH $BITRISE_GIT_COMMIT"
+
+#envman add --key SLACK_MESSAGE_ON_ERROR \
+#	--value "FAIL"
+
+#envman add --key SLACK_THUMBNAIL_URL \
+#	--value "https://img.icons8.com/nolan/128/000000/physics.png"
+
+#envman add --key SLACK_THUMBNAIL_URL_ON_ERROR \
+#	--value "https://img.icons8.com/doodle/128/000000/beautiful-flower.png"

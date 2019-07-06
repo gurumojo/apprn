@@ -27,11 +27,13 @@ project.xcworkspace
 build/
 .idea
 .gradle
+gradle.deps
 local.properties
 *.iml
 
 # node.js
 #
+coverage/
 node_modules/
 npm-debug.log
 yarn-error.log
