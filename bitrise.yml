@@ -154,8 +154,7 @@ workflows:
     steps:
     - file-downloader@1.0.1:
         inputs:
-        #- destination: "$BITRISE_SOURCE_DIR/android/keystore"
-        - destination: android/keystore
+        - destination: android/app/keystore
         - source: "$BITRISEIO_ANDROID_KEYSTORE_URL"
 
   _github_release:
@@ -290,8 +289,13 @@ workflows:
         inputs:
         - content: |-
             #!/bin/bash -e
-            env | sort
+            echo "=========== ENV ============="
+            env | grep ^[A-Z] | sort
+            echo "=========== CACHE ==========="
             find $BITRISE_CACHE_DIR | sort
+            echo "=========== OUTPUT =========="
+            find android/app/build/outputs | sort
+            echo "============================="
         - is_debug: 'yes'
 
   _tags:
