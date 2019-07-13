@@ -4,6 +4,7 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
   envs:
+  - BITRISE_CACHE_SEARCH_PATHS: '.'
   - DEBUG: 1
   - DEBUG_YES_NO: 'yes'
   - DEBUG_TRUE_FALSE: 'true'
@@ -29,12 +30,16 @@ workflows:
         inputs:
         - manual_merge: 'no'
         #- reset_repository: 'Yes'
+    - cache-push@2.2.0:
+        inputs:
+        - cache_paths: "$BITRISE_CACHE_SEARCH_PATHS"
+        - ignore_check_on_paths: "$BITRISE_CACHE_IGNORE_PATHS"
+        - is_debug_mode: $DEBUG_TRUE_FALSE
     - script@1.1.5:
         title: Bitrise via Repository
         inputs:
         - content: |-
             #!/bin/bash -ex
-            # execute workflow defined in git clone
             bitrise run $BITRISE_TRIGGERED_WORKFLOW_ID
         - is_debug: $DEBUG_YES_NO
 

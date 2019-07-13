@@ -17,9 +17,8 @@ workflows:
 
   build:
     after_run:
-    - _clone
-    - _check
     - _cache_pull
+    - _check
     - _install
     - _lint
     - _test
@@ -32,7 +31,6 @@ workflows:
 
   deploy:
     after_run:
-    - _clone
     - _cache_pull
     - _check
     #- _github_release
@@ -51,7 +49,6 @@ workflows:
 
   release:
     after_run:
-    #- _clone
     - _cache_pull
     - _deploy_to_apple
     - _deploy_to_google
@@ -93,6 +90,7 @@ workflows:
     steps:
     - cache-push@2.2.0:
         inputs:
+        - cache_paths: "$BITRISE_CACHE_SEARCH_PATHS"
         - ignore_check_on_paths: "$BITRISE_CACHE_IGNORE_PATHS"
         - is_debug_mode: $DEBUG_TRUE_FALSE
 
