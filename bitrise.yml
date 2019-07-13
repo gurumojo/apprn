@@ -22,6 +22,7 @@ workflows:
     - _install
     - _lint
     - _test
+    - _download_keystore
     - _apk
     #- _ipa
     - _cache_push
@@ -64,7 +65,6 @@ workflows:
         - project_location: $PROJECT_LOCATION
     - android-unit-test@0.11.1:
         inputs:
-        - is_debug: $DEBUG_TRUE_FALSE
         - module: $MODULE
         - variant: $VARIANT
         - project_location: $PROJECT_LOCATION
