@@ -56,3 +56,4 @@ fastlane/test_output
 
 # bitrise.io
 .bitrise.secrets.yml 
+keystore.properties
