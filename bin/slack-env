@@ -88,13 +88,13 @@ envman add --key SLACK_FOOTER_ICON_URL \
 	#--value "https://platform.slack-edge.com/img/default_application_icon.png"
 
 envman add --key SLACK_FOOTER_TEXT \
-	--value "$HOST_NAME"
+	--value "$BITRISEIO_STACK_ID"
 
 envman add --key SLACK_HEADER \
-	--value "SUCCESS: $BITRISE_APP_TITLE build $BITRISE_BUILD_SLUG"
+	--value "SUCCESS"
 
 envman add --key SLACK_HEADER_ON_ERROR \
-	--value "FAILURE: $BITRISE_APP_TITLE build $BITRISE_BUILD_SLUG"
+	--value "FAILURE"
 
 envman add --key SLACK_HYPERLINK \
 	--value "$BITRISE_PUBLIC_INSTALL_PAGE_URL"
@@ -105,8 +105,8 @@ envman add --key SLACK_HYPERLINK_ON_ERROR \
 envman add --key SLACK_ICON_URL \
 	--value "https://bitrise-public-content-production.s3.amazonaws.com/user-icons/avatar-default.png"
 
-envman add --key SLACK_ICON_URL_ON_ERROR \
-	--value "https://png-5.findicons.com/files/icons/1671/simplicio/128/notification_error.png"
+#envman add --key SLACK_ICON_URL_ON_ERROR \
+#	--value "https://png-5.findicons.com/files/icons/1671/simplicio/128/notification_error.png"
 
 #envman add --key SLACK_IMAGE_URL \
 #	--value "https://farm9.staticflickr.com/8110/28899363330_0ce168a7fc_b.jpg"
@@ -124,7 +124,7 @@ envman add --key SLACK_ICON_URL_ON_ERROR \
 #	--value "https://mir-s3-cdn-cf.behance.net/project_modules/disp/81f54f24872545.5633b77b7c7b3.jpg"
 
 envman add --key SLACK_MESSAGE \
-	--value "$GIT_CLONE_COMMIT_COMMITER_NAME $GIT_REPOSITORY_URL $BITRISE_GIT_BRANCH $BITRISE_GIT_COMMIT"
+	--value "$GIT_REPOSITORY_URL $BITRISE_GIT_COMMIT"
 
 #envman add --key SLACK_MESSAGE_ON_ERROR \
 #	--value "FAIL"
@@ -132,5 +132,6 @@ envman add --key SLACK_MESSAGE \
 #envman add --key SLACK_THUMBNAIL_URL \
 #	--value "https://img.icons8.com/nolan/128/000000/physics.png"
 
-#envman add --key SLACK_THUMBNAIL_URL_ON_ERROR \
+envman add --key SLACK_THUMBNAIL_URL_ON_ERROR \
+	--value "https://png-5.findicons.com/files/icons/1671/simplicio/128/notification_error.png"
 #	--value "https://img.icons8.com/doodle/128/000000/beautiful-flower.png"
