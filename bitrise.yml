@@ -22,10 +22,10 @@ workflows:
     - _install
     - _lint
     - _test
-    #- _apk
+    - _apk
     #- _ipa
     - _cache_push
-    #- _deploy_to_bitrise
+    - _deploy_to_bitrise
     - _report
     - _notify
 
@@ -33,7 +33,7 @@ workflows:
     after_run:
     - _cache_pull
     - _check
-    #- _github_release
+    - _github_release
     #- _deploy_to_apple
     #- _deploy_to_google
     - _report
