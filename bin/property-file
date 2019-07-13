@@ -1,0 +1,14 @@
+#!/bin/bash -ex
+
+PROPERTY_FILE=${KEYSTORE_PROPERTY_FILE:-android/app/keystore.properties}
+
+cat << EOF > $PROPERTY_FILE
+signing.storeFile=$BITRISEIO_ANDROID_KEYSTORE_URL
+signing.storePassword=$BITRISEIO_ANDROID_KEYSTORE_PASSWORD
+signing.keyAlias=$BITRISEIO_ANDROID_KEYSTORE_ALIAS
+signing.keyPassword=$BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD
+EOF
+
+chmod 600 $PROPERTY_FILE
+
+(( $DEBUG )) && cat $PROPERTY_FILE

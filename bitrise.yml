@@ -20,8 +20,8 @@ workflows:
     - _cache_pull
     - _check
     - _install
-    - _lint
-    - _test
+    #- _lint
+    #- _test
     - _download_keystore
     - _apk
     #- _ipa
@@ -58,16 +58,16 @@ workflows:
 
   _apk:
     steps:
-    - android-lint@0.9.6:
-        inputs:
-        - module: $MODULE
-        - variant: $VARIANT
-        - project_location: $PROJECT_LOCATION
-    - android-unit-test@0.11.1:
-        inputs:
-        - module: $MODULE
-        - variant: $VARIANT
-        - project_location: $PROJECT_LOCATION
+    #- android-lint@0.9.6:
+    #    inputs:
+    #    - module: $MODULE
+    #    - variant: $VARIANT
+    #    - project_location: $PROJECT_LOCATION
+    #- android-unit-test@0.11.1:
+    #    inputs:
+    #    - module: $MODULE
+    #    - variant: $VARIANT
+    #    - project_location: $PROJECT_LOCATION
     - install-missing-android-tools@2.3.7:
         inputs:
         - gradlew_path: $PROJECT_LOCATION/gradlew
@@ -152,9 +152,14 @@ workflows:
 
   _download_keystore:
     steps:
+    - script@1.1.5:
+        title: Stash gradle properties
+        inputs:
+        - content: bin/property-file
+        - is_debug: 'yes'
     - file-downloader@1.0.1:
         inputs:
-        - destination: android/app/keystore
+        - destination: "$ANDROID_KEYSTORE_FILE"
         - source: "$BITRISEIO_ANDROID_KEYSTORE_URL"
 
   _github_release:
@@ -295,6 +300,8 @@ workflows:
             find $BITRISE_CACHE_DIR | sort
             echo "=========== OUTPUT =========="
             find android/app/build/outputs | sort
+            echo "=========== DEPLOY =========="
+            find $BITRISE_DEPLOY_DIR | sort
             echo "============================="
         - is_debug: 'yes'
 
