@@ -109,6 +109,7 @@ workflows:
   _clone:
     steps:
     - activate-ssh-key@4.0.3:
+        run_if: enveq "SSH_RSA_PRIVATE_KEY" "" | not
         inputs:
         - verbose: $DEBUG_TRUE_FALSE
     - git-clone@4.0.14:
