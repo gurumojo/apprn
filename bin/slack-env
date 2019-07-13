@@ -77,14 +77,14 @@ envman add --key SLACK_COLOR_CODE_ON_ERROR \
 #envman add --key SLACK_COLOR_CODE_ON_ERROR \
 #	--value "#B22222"
 
-envman add --key SLACK_EMOJI \
-	--value ":thumbsup:"
+#envman add --key SLACK_EMOJI \
+#	--value ":thumbsup:"
 
-envman add --key SLACK_EMOJI_ON_ERROR \
-	--value ":thumbsdown:"
+#envman add --key SLACK_EMOJI_ON_ERROR \
+#	--value ":thumbsdown:"
 
 envman add --key SLACK_FOOTER_ICON_URL \
-	--value "https://bitrise-public-content-production.s3.amazonaws.com/user-icons/avatar-default.png"
+	--value "http://icons.iconarchive.com/icons/paomedia/small-n-flat/32/cogs-icon.png"
 	#--value "https://platform.slack-edge.com/img/default_application_icon.png"
 
 envman add --key SLACK_FOOTER_TEXT \

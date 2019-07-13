@@ -1,30 +1,64 @@
-format_version: "8"
+---
+format_version: '8'
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-
 project_type: react-native
 
 app:
   envs:
-  - PROJECT_LOCATION: android
   - MODULE: app
-  - VARIANT:
+  - PROJECT_LOCATION: android
   - SIGNED_ARTIFACT_NAME:
+  - VARIANT:
+  - BITRISE_EXPORT_METHOD: development
   - BITRISE_PROJECT_PATH: ios/apprn.xcodeproj
   - BITRISE_SCHEME: apprn
-  - BITRISE_EXPORT_METHOD: development
 
 workflows:
-  integrate:
+
+  build:
+    after_run:
+    #- _clone
+    - _check
+    - _cache_pull
+    - _install
+    - _lint
+    - _test
+    #- _apk
+    - _cache_push
+    #- _deploy_to_bitrise
+    - _report
+    - _notify
+
+  deploy:
+    after_run:
+    #- _clone
+    - _cache_pull
+    - _check
+    - _github_release
+    - _deploy_to_apple
+    - _deploy_to_google
+    - _report
+    - _notify
+
+  lint:
+    after_run:
+    - _lint
+
+  test:
+    after_run:
+    - _test
+
+  release:
+    after_run:
+    #- _clone
+    - _cache_pull
+    - _deploy_to_apple
+    - _deploy_to_google
+    - _report
+    - _notify
+
+  _apk:
     steps:
-    - script@1.1.5:
-        title: NPM Install, Lint, Unit Test
-        inputs:
-        - content: |-
-            #!/bin/bash -ex
-            yarn
-            yarn run lint
-            yarn test
-        - is_debug: $DEBUG_YES_NO
     - android-lint@0.9.6:
         inputs:
         - module: $MODULE
@@ -47,6 +81,237 @@ workflows:
     - sign-apk@1.3.1:
         inputs:
         - output_name: $SIGNED_ARTIFACT_NAME
+
+  _cache_pull:
+    steps:
+    - cache-pull@2.0.1:
+        inputs:
+        - is_debug_mode: $DEBUG_TRUE_FALSE
+
+  _cache_push:
+    steps:
+    - cache-push@2.2.0:
+        inputs:
+        - ignore_check_on_paths: "$BITRISE_CACHE_IGNORE_PATHS"
+        - is_debug_mode: $DEBUG_TRUE_FALSE
+
+  _check:
+    steps:
+    - script@1.1.5:
+        title: Check git state
+        inputs:
+        - content: |-
+            #!/bin/bash -e
+            bin/commits
+            bin/tags
+
+  _clone:
+    steps:
+    - activate-ssh-key@4.0.3:
+        inputs:
+        - verbose: $DEBUG_TRUE_FALSE
+    - git-clone@4.0.14:
+        inputs:
+        - manual_merge: 'no'
+
+  _commits:
+    steps:
+    - script@1.1.5:
+        title: Check git commit history
+        inputs:
+        - content: bin/commits
+        - is_debug: 'yes'
+
+  _deploy_to_apple:
+    steps:
+    - script@1.1.5:
+        title: Deploy to Apple
+        inputs:
+        - content: |-
+            #!/bin/bash -e
+            echo "TODO: Deploy to Apple"
+        - is_debug: 'yes'
+
+  _deploy_to_bitrise:
+    steps:
+    - deploy-to-bitrise-io@1.6.0:
+        title: Deploy to Bitrise
+        inputs:
+        - debug_mode: $DEBUG_TRUE_FALSE
+        - notify_email_list: "$BITRISE_TEST_GROUP_EMAILS"
+
+  _deploy_to_google:
+    steps:
+    - script@1.1.5:
+        title: Deploy to Google
+        inputs:
+        - content: |-
+            #!/bin/bash -e
+            echo "TODO: Deploy to Google"
+        - is_debug: 'yes'
+
+  _download_keystore:
+    steps:
+    - file-downloader@1.0.1:
+        inputs:
+        #- destination: "$BITRISE_SOURCE_DIR/android/keystore"
+        - destination: android/keystore
+        - source: "$BITRISEIO_ANDROID_KEYSTORE_URL"
+
+  _github_release:
+    steps:
+    - git-tag@1.1.0:
+        inputs:
+        - push: true
+        - tag: "$GIT_UPDATE_TAG"
+        - tag_message: "$GIT_UPDATE_TAG"
+    - github-release@0.10.0:
+        run_if: enveq "SKIP_BUILD" "skip" | not
+        inputs:
+        - api_token: "$GITHUB_BITRISE_RELEASE_TOKEN"
+        - body: "$GIT_UPDATE_TAG"
+        - commit: "$GIT_LATEST_COMMIT"
+        - files_to_upload: "$GITHUB_BITRISE_RELEASE_FILES"
+        - name: "$GIT_UPDATE_TAG"
+        - pre_release: 'yes'
+        - tag: "$GIT_UPDATE_TAG"
+        - username: "$GITHUB_USERNAME"
+    - apk-info@1.4.4:
+        inputs:
+        - apk_path: android/app/build/outputs/apk/release/app-release.apk
+    - comment-on-github-pull-request@0.9.3:
+        inputs:
+        - body: "$GITHUB_RELEASE_MESSAGE"
+        - personal_access_token: "$GITHUB_BITRISE_RELEASE_TOKEN"
+
+  _install:
+    steps:
+    - script@1.1.5:
+        run_if: enveq "CACHED_INSTALL" "1" | not
+        title: Install build dependencies
+        inputs:
+        - content: yarn
+        - is_debug: 'yes'
+
+  _lint:
+    steps:
+    - script@1.1.5:
+        title: Run code linter
+        inputs:
+        - content: yarn run lint
+        - is_debug: 'yes'
+
+  _notify:
+    steps:
+    - script@1.1.5:
+        title: Prepare Slack Notification
+        is_always_run: true
+        inputs:
+        - content: bin/slack-env
+        - is_debug: $DEBUG_YES_NO
+    - slack@3.1.3:
+        inputs:
+        - channel: "$SLACK_CHANNEL"
+        - channel_on_error: "$SLACK_CHANNEL_ON_ERROR"
+        - color: "$SLACK_COLOR_CODE"
+        - color_on_error: "$SLACK_COLOR_CODE_ON_ERROR"
+        - emoji: "$SLACK_EMOJI"
+        - emoji_on_error: "$SLACK_EMOJI_ON_ERROR"
+        - footer: "$SLACK_FOOTER_TEXT"
+        - footer_icon: "$SLACK_FOOTER_ICON_URL"
+        - from_username: "$SLACK_BOT_USERNAME"
+        - from_username_on_error: "$SLACK_BOT_USERNAME_ON_ERROR"
+        - icon_url: "$SLACK_ICON_URL"
+        - icon_url_on_error: "$SLACK_ICON_URL_ON_ERROR"
+        - image_url: "$SLACK_IMAGE_URL"
+        - image_url_on_error: "$SLACK_IMAGE_URL_ON_ERROR"
+        - pretext: "$SLACK_HEADER"
+        - pretext_on_error: "$SLACK_HEADER_ON_ERROR"
+        - text: "$SLACK_MESSAGE"
+        - text_on_error: "$SLACK_MESSAGE_ON_ERROR"
+        - thumb_url: "$SLACK_THUMBNAIL_URL"
+        - thumb_url_on_error: "$SLACK_THUMBNAIL_URL_ON_ERROR"
+        - title_link: "$SLACK_HYPERLINK"
+        - title_on_error: "$SLACK_HYPERLINK_ON_ERROR"
+        - webhook_url: "$SLACK_WEBHOOK_URL"
+
+  _parallel:
+    steps:
+    - build-router-start@0.11.2:
+        inputs:
+        - access_token: "$BITRISE_JOB_RUNNER_TOKEN"
+        - environment_key_list: debug release
+        - wait_for_builds: 'false'
+        - workflows: |-
+            lint
+            test
+            detox
+        # output: ROUTER_STARTED_BUILD_SLUGS
+    - build-router-wait@0.9.1:
+        inputs:
+        - access_token: "$BITRISE_JOB_RUNNER_TOKEN"
+
+  _report:
+    steps:
+    - script@1.1.5:
+        title: Report results
+        is_always_run: true
+        inputs:
+        - content: |-
+            #!/bin/bash -e
+            env | sort
+            find $BITRISE_CACHE_DIR | sort
+        - is_debug: 'yes'
+
+  _tags:
+    steps:
+    - script@1.1.5:
+        title: Check for release tags
+        inputs:
+        - content: bin/tags
+        - is_debug: 'yes'
+
+  _test:
+    steps:
+    - script@1.1.5:
+        title: Run unit tests
+        inputs:
+        - content: yarn test
+        - is_debug: 'yes'
+
+
+    #steps:
+    #- script@1.1.5:
+    #    title: NPM Install, Lint, Unit Test
+    #    inputs:
+    #    - content: |-
+    #        #!/bin/bash -ex
+    #        yarn
+    #        yarn run lint
+    #        yarn test
+    #    - is_debug: $DEBUG_YES_NO
+    #- android-lint@0.9.6:
+    #    inputs:
+    #    - module: $MODULE
+    #    - variant: $VARIANT
+    #    - project_location: $PROJECT_LOCATION
+    #- android-unit-test@0.11.1:
+    #    inputs:
+    #    - is_debug: $DEBUG_TRUE_FALSE
+    #    - module: $MODULE
+    #    - variant: $VARIANT
+    #    - project_location: $PROJECT_LOCATION
+    #- install-missing-android-tools@2.3.7:
+    #    inputs:
+    #    - gradlew_path: $PROJECT_LOCATION/gradlew
+    #- android-build@0.10.0:
+    #    inputs:
+    #    - module: $MODULE
+    #    - variant: $VARIANT
+    #    - project_location: $PROJECT_LOCATION
+    #- sign-apk@1.3.1:
+    #    inputs:
+    #    - output_name: $SIGNED_ARTIFACT_NAME
     #- set-ios-info-plist-unified@1.1.6:
     #    inputs:
     #    - app_icon_asset_catalog: "$APP_ICON_ASSET_CATALOG"
@@ -75,26 +340,4 @@ workflows:
     #    inputs:
     #    - force_code_sign_identity: "$FORCE_CODE_SIGN_IDENTITY"
     #    - force_provisioning_profile: "$FORCE_PROVISIONING_PROFILE_UUID"
-    - cache-push@2.2.0:
-        inputs:
-        - is_debug_mode: $DEBUG_TRUE_FALSE
-    - deploy-to-bitrise-io@1.6.0:
-        inputs:
-        - debug_mode: $DEBUG_TRUE_FALSE
-
-  deploy:
-    steps:
-    - cache-pull@2.0.1:
-        inputs:
-        - is_debug_mode: $DEBUG_TRUE_FALSE
-    - apk_info@1.4.4: {}
-    #- ipa-info@1.1.0: {}
-
-  release:
-    steps:
-    - cache-pull@2.0.1:
-        inputs:
-        - is_debug_mode: $DEBUG_TRUE_FALSE
-    - apk_info@1.4.4: {}
-    #- ipa-info@1.1.0: {}
 

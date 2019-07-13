@@ -1,0 +1,30 @@
+#!/bin/bash -e
+
+#mkdir -p ~/.envman
+#echo -e '{"env_bytes_limit_in_kb": 30}' > ~/.envman/configs.json
+
+git fetch --tags
+export GIT_CURRENT_TAG=$(git describe --abbrev=0 --tags)
+envman add --key GIT_CURRENT_TAG --value "$GIT_CURRENT_TAG"
+
+cache="$BITRISE_CACHE_DIR/latest"
+current=$(git rev-parse --verify master)
+latest=""
+
+if [ ! -f "$cache" ] ;then
+  echo " (!) $cache missing ..."
+  echo "Saving git commit in local cache."
+else
+  latest=$(cat $cache)
+  envman add --key GIT_LATEST_COMMIT --value "$latest"
+fi
+
+if [ "$current" != "$latest" ] ;then
+  export GIT_LATEST_COMMIT=$current
+  envman add --key SKIP_BUILD --value ""
+else
+  export GIT_LATEST_COMMIT=$latest
+  envman add --key SKIP_BUILD --value "skip"
+fi
+
+echo "$GIT_LATEST_COMMIT" > "$cache"

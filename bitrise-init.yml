@@ -1,44 +1,34 @@
-format_version: "8"
+---
+format_version: '8'
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-
-trigger_map:
-- push_branch: '*'
-  workflow: integrate
-- pull_request_target_branch: '*'
-  workflow: integrate
-- push_branch: 'candidate/*'
-  workflow: deploy
-- push_branch: 'release'
-  workflow: release
-
-# tag based release management
-#trigger_map:
-#- tag: v*.*.*
-#  workflow: deploy-to-production
-#- push_branch: master
-#  workflow: deploy-to-integration
-#- push_branch: "*"
-#  workflow: deploy-to-development
-#- pull_request_target_branch: "*"
-#  workflow: deploy-to-development
 
 app:
   envs:
   - DEBUG: 1
   - DEBUG_YES_NO: 'yes'
-  - DEBUG_TRUE_FALSE: 'false'
+  - DEBUG_TRUE_FALSE: 'true'
+
+trigger_map:
+- pull_request_source_branch: "*"
+  workflow: build
+- push_branch: master
+  workflow: deploy
+- tag: "v*"
+  workflow: release
 
 workflows:
+
   _run_from_repo:
     description: run config saved in a git repository clone
     steps:
     - activate-ssh-key@4.0.3:
-        run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+        run_if: enveq "SSH_RSA_PRIVATE_KEY" "" | not
         inputs:
         - verbose: $DEBUG_TRUE_FALSE
     - git-clone@4.0.14:
         inputs:
         - manual_merge: 'no'
+        #- reset_repository: 'Yes'
     - script@1.1.5:
         title: Bitrise via Repository
         inputs:
@@ -47,79 +37,8 @@ workflows:
             # execute workflow defined in git clone
             bitrise run $BITRISE_TRIGGERED_WORKFLOW_ID
         - is_debug: $DEBUG_YES_NO
-    - script@1.1.5:
-        title: Prepare Slack Notification
-        is_always_run: true
-        inputs:
-        - content: bin/slack-env
-        - is_debug: $DEBUG_YES_NO
-    - slack@3.1.3:
-        inputs:
-        - channel: "$SLACK_CHANNEL"
-        - channel_on_error: "$SLACK_CHANNEL_ON_ERROR"
-        - color: "$SLACK_COLOR_CODE"
-        - color_on_error: "$SLACK_COLOR_CODE_ON_ERROR"
-        - emoji: "$SLACK_EMOJI"
-        - emoji_on_error: "$SLACK_EMOJI_ON_ERROR"
-        - footer: "$SLACK_FOOTER_TEXT"
-        - footer_icon: "$SLACK_FOOTER_ICON_URL"
-        - from_username: "$SLACK_BOT_USERNAME"
-        - from_username_on_error: "$SLACK_BOT_USERNAME_ON_ERROR"
-        - icon_url: "$SLACK_ICON_URL"
-        - icon_url_on_error: "$SLACK_ICON_URL_ON_ERROR"
-        - image_url: "$SLACK_IMAGE_URL"
-        - image_url_on_error: "$SLACK_IMAGE_URL_ON_ERROR"
-        - is_debug_mode: $DEBUG_YES_NO
-        - pretext: "$SLACK_HEADER"
-        - pretext_on_error: "$SLACK_HEADER_ON_ERROR"
-        - text: "$SLACK_MESSAGE"
-        - text_on_error: "$SLACK_MESSAGE_ON_ERROR"
-        - thumb_url: "$SLACK_THUMBNAIL_URL"
-        - thumb_url_on_error: "$SLACK_THUMBNAIL_URL_ON_ERROR"
-        - title_link: "$SLACK_HYPERLINK"
-        - title_on_error: "$SLACK_HYPERLINK_ON_ERROR"
-        - webhook_url: "$SLACK_WEBHOOK_URL"
 
-### - Debug: false
-### - WebhookURL: *****
-### - APIToken: 
-### - Channel: 
-### - ChannelOnError: 
-### - Text:    
-### - TextOnError: 
-### - IconEmoji: :thumbsup:
-### - IconEmojiOnError: :thumbsdown:
-### - IconURL: https://bitrise-public-content-production.s3.amazonaws.com/user-icons/avatar-default.png
-### - IconURLOnError: https://png-5.findicons.com/files/icons/1671/simplicio/128/notification_error.png
-### - LinkNames: true
-### - Username: 
-### - UsernameOnError: 
-### - Color: good
-### - ColorOnError: danger
-### - PreText: *SUCCESS:  build *
-### - PreTextOnError: *FAILURE:  build *
-### - AuthorName: 
-### - Title: 
-### - TitleOnError: 
-### - TitleLink: 
-### - Message: 
-### - MessageOnError: 
-### - ImageURL: 
-### - ImageURLOnError: https://mir-s3-cdn-cf.behance.net/project_modules/disp/81f54f24872545.5633b77b7c7b3.jpg
-### - ThumbURL: https://img.icons8.com/nolan/128/000000/physics.png
-### - ThumbURLOnError: https://img.icons8.com/doodle/128/000000/beautiful-flower.png
-### - Footer: boingboing
-### - FooterIcon: https://platform.slack-edge.com/img/default_application_icon.png
-### - TimeStamp: true
-### - Fields: App|
-### Branch|
-### Workflow|integrate
-### 
-### - Buttons: View App|
-### View Build|
-### Install Page|
-
-  integrate:
+  build:
     after_run:
     - _run_from_repo
 
@@ -333,4 +252,19 @@ workflows:
 # BITRISE_XCARCHIVE_ZIP_PATH
 # BITRISE_XCODE_ARCHIVE_RAW_RESULT_TEXT_PATH
 # BITRISE_IDEDISTRIBUTION_LOGS_PATH
+
+
+# Recommended iOS Workflow
+
+# * Activate SSH key (RSA private key)
+# * Git Clone Repository
+# * Bitrise.io Cache:Pull (for CocoaPods cache)
+# * Run CocoaPods install (if I have pods)
+# * Bitrise.io Cache:Push
+# * Recreate User Schemes
+# * Set Xcode Project Build Number
+# * Certificate and profile installer (or iOS Auto Provision)
+# * Xcode Archive & Export for iOS
+# * Deploy to Bitrise.io - Apps, Logs, Artifacts
+# * Send a Slack message (optional)
 
