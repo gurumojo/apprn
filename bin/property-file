@@ -1,16 +1,19 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
-[ "$DEBUG" == "1" ] || [ "$DEBUG" == "true" ] && set -x
+BASEDIR=$(realpath $(dirname $(dirname $0)))
 
-PROPERTY_FILE=${KEYSTORE_PROPERTY_FILE:-android/app/keystore.properties}
+KEYSTORE_PROPERTY_FILE=${KEYSTORE_PROPERTY_FILE:-$BASEDIR/android/app/keystore.properties}
+envman add --key KEYSTORE_PROPERTY_FILE --value "$KEYSTORE_PROPERTY_FILE"
 
-cat << EOF > $PROPERTY_FILE
+cat << EOF > $KEYSTORE_PROPERTY_FILE
 signing.storeFile=$ANDROID_KEYSTORE_FILE
 signing.storePassword=$BITRISEIO_ANDROID_KEYSTORE_PASSWORD
 signing.keyAlias=$BITRISEIO_ANDROID_KEYSTORE_ALIAS
 signing.keyPassword=$BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD
 EOF
 
-chmod 600 $PROPERTY_FILE
+chmod 600 $KEYSTORE_PROPERTY_FILE
 
-[ "$DEBUG" == "1" ] || [ "$DEBUG" == "true" ] && cat $PROPERTY_FILE || true
+if [ "$DEBUG" == "1" ] || [ "$DEBUG" == "true" ] ;then
+	cat $KEYSTORE_PROPERTY_FILE
+fi

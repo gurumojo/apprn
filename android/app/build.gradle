@@ -109,6 +109,31 @@ android {
         versionName "1.0"
     }
     signingConfigs {
+        release {
+            println "PWD $System.env.PWD"
+            println "KEYSTORE_PROPERTY_FILE $System.env.KEYSTORE_PROPERTY_FILE"
+            println "ANDROID_KEYSTORE_FILE $System.env.ANDROID_KEYSTORE_FILE"
+            println "BITRISEIO_ANDROID_KEYSTORE_PASSWORD $System.env.BITRISEIO_ANDROID_KEYSTORE_PASSWORD"
+            println "BITRISEIO_ANDROID_KEYSTORE_ALIAS $System.env.BITRISEIO_ANDROID_KEYSTORE_ALIAS"
+            println "BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD $System.env.BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD"
+            println "SLACK_WEBHOOK_URL $System.env.SLACK_WEBHOOK_URL"
+            File input = file("$System.env.KEYSTORE_PROPERTY_FILE")
+            if (input.exists()) {
+                println "Using $System.env.KEYSTORE_PROPERTY_FILE"
+                Properties config = new Properties()
+                config.load(new FileInputStream(input))
+                storeFile file(config.getProperty('signing.storeFile'))
+                storePassword config.getProperty('signing.storePassword')
+                keyAlias config.getProperty('signing.keyAlias')
+                keyPassword config.getProperty('signing.keyPassword')
+            } else {
+                println "Using System.env.*"
+                storeFile file("$System.env.ANDROID_KEYSTORE_FILE")
+                storePassword "$System.env.BITRISEIO_ANDROID_KEYSTORE_PASSWORD"
+                keyAlias "$System.env.BITRISEIO_ANDROID_KEYSTORE_ALIAS"
+                keyPassword "$System.env.BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD"
+            }
+        }
     }
     splits {
         abi {
@@ -122,6 +147,7 @@ android {
         release {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            signingConfig signingConfigs.release
         }
     }
     // applicationVariants are e.g. debug, release
