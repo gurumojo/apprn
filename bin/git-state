@@ -7,9 +7,11 @@ fi
 #mkdir -p ~/.envman
 #echo -e '{"env_bytes_limit_in_kb": 30}' > ~/.envman/configs.json
 
-cache="$BITRISE_CACHE_DIR/latest"
-current=$(git rev-parse --verify master)
-latest=""
+
+# export commit info
+
+cache="${BITRISE_CACHE_DIR:-.}/latest"
+current=$(git rev-parse --verify origin/master)
 
 if [ ! -f "$cache" ] ;then
   echo " (!) $cache missing ..."
@@ -29,6 +31,9 @@ fi
 echo "$GIT_LATEST_COMMIT" > "$cache"
 envman add --key GIT_LATEST_COMMIT --value "$GIT_LATEST_COMMIT"
 
+
+# parse current tag
+
 git fetch --tags
 export GIT_CURRENT_TAG=$(git describe --abbrev=0 --tags)
 envman add --key GIT_CURRENT_TAG --value "$GIT_CURRENT_TAG"
@@ -38,16 +43,33 @@ if [[ $GIT_CURRENT_TAG =~ "rc" ]] ;then
 else
   version="${GIT_CURRENT_TAG}-rc"
 fi
-candidate=${version#*"rc"}
-if [[ $candidate > 0 ]] || [[ $candidate != '' ]] ;then
-  iteration=$(($candidate+1))
-else
-  iteration=1
-fi
 
 IFS='.' read -ra semver <<< ${version%"-rc"*}
-bump=$((${semver[2]}+1))
-patch=${semver[0]}.${semver[1]}.${bump}
 
-export GIT_UPDATE_TAG="${patch}-rc${iteration}"
+if [ "$GIT_CURRENT_TAG" == "$version" ] ;then
+	# no bump on patch; already a release candidate
+	patch="${semver[0]}.${semver[1]}.${semver[2]}"
+else
+	bump=$((${semver[2]}+1))
+	patch="${semver[0]}.${semver[1]}.${bump}"
+fi
+
+candidate=${version#*"rc"}
+
+
+# export update tag
+
+if [ "$GIT_CURRENT_TAG" == "$candidate" ] ;then
+	# release workflow
+	export GIT_UPDATE_TAG="${patch}"
+else
+	# deploy workflow
+	if [[ $candidate > 0 ]] || [[ $candidate != '' ]] ;then
+		iteration=$(($candidate+1))
+	else
+		iteration=1
+	fi
+	export GIT_UPDATE_TAG="${patch}-rc${iteration}"
+fi
+
 envman add --key GIT_UPDATE_TAG --value $GIT_UPDATE_TAG

@@ -173,10 +173,11 @@ workflows:
         - username: "$GITHUB_USERNAME"
     - apk-info@1.4.4:
         inputs:
-        - apk_path: android/app/build/outputs/apk/release/app-release.apk
+        #- apk_path: android/app/build/outputs/apk/release/app-release.apk
+        - apk_path: android/app/build/outputs/apk/debug/app-debug.apk
     - comment-on-github-pull-request@0.9.3:
         inputs:
-        - body: "$GITHUB_RELEASE_MESSAGE"
+        - body: "$ANDROID_APP_NAME $ANDROID_APK_FILE_SIZE $ANDROID_APP_PACKAGE_NAME $ANDROID_APP_VERSION_CODE $ANDROID_APP_VERSION_NAME $ANDROID_ICON_PATH"
         - personal_access_token: "$GITHUB_BITRISE_RELEASE_TOKEN"
 
   _install:
@@ -231,11 +232,13 @@ workflows:
     steps:
     - script@1.1.5:
         title: Prepare Slack Notification
+        run_if: .IsCI
         is_always_run: true
         inputs:
         - content: bin/slack-env
         - is_debug: $DEBUG_YES_NO
     - slack@3.1.3:
+        run_if: .IsCI
         inputs:
         - channel: "$SLACK_CHANNEL"
         - channel_on_error: "$SLACK_CHANNEL_ON_ERROR"
