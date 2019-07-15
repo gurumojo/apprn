@@ -1,0 +1,53 @@
+#!/bin/bash -e
+
+if [ "$DEBUG" == "1" ] || [ "$DEBUG" == "true" ] ;then
+  set -x
+fi
+
+#mkdir -p ~/.envman
+#echo -e '{"env_bytes_limit_in_kb": 30}' > ~/.envman/configs.json
+
+cache="$BITRISE_CACHE_DIR/latest"
+current=$(git rev-parse --verify master)
+latest=""
+
+if [ ! -f "$cache" ] ;then
+  echo " (!) $cache missing ..."
+  echo "Saving git commit in local cache."
+else
+  latest=$(cat $cache)
+fi
+
+if [ "$current" != "$latest" ] ;then
+  export GIT_LATEST_COMMIT=$current
+  envman add --key SKIP_BUILD --value ""
+else
+  export GIT_LATEST_COMMIT=$latest
+  envman add --key SKIP_BUILD --value "skip"
+fi
+
+echo "$GIT_LATEST_COMMIT" > "$cache"
+envman add --key GIT_LATEST_COMMIT --value "$GIT_LATEST_COMMIT"
+
+git fetch --tags
+export GIT_CURRENT_TAG=$(git describe --abbrev=0 --tags)
+envman add --key GIT_CURRENT_TAG --value "$GIT_CURRENT_TAG"
+
+if [[ $GIT_CURRENT_TAG =~ "rc" ]] ;then
+  version=$GIT_CURRENT_TAG
+else
+  version="${GIT_CURRENT_TAG}-rc"
+fi
+candidate=${version#*"rc"}
+if [[ $candidate > 0 ]] || [[ $candidate != '' ]] ;then
+  iteration=$(($candidate+1))
+else
+  iteration=1
+fi
+
+IFS='.' read -ra semver <<< ${version%"-rc"*}
+bump=$((${semver[2]}+1))
+patch=${semver[0]}.${semver[1]}.${bump}
+
+export GIT_UPDATE_TAG="${patch}-rc${iteration}"
+envman add --key GIT_UPDATE_TAG --value $GIT_UPDATE_TAG

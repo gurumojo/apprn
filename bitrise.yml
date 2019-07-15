@@ -89,6 +89,7 @@ workflows:
   _cache_push:
     steps:
     - cache-push@2.2.0:
+        run_if: true
         inputs:
         - cache_paths: "$BITRISE_CACHE_SEARCH_PATHS"
         - ignore_check_on_paths: "$BITRISE_CACHE_IGNORE_PATHS"
@@ -99,10 +100,8 @@ workflows:
     - script@1.1.5:
         title: Check git state
         inputs:
-        - content: |-
-            #!/bin/bash -e
-            bin/commits
-            bin/tags
+        - content: bin/git-state
+        - is_debug: $DEBUG_YES_NO
 
   _clone:
     steps:
@@ -113,14 +112,6 @@ workflows:
     - git-clone@4.0.14:
         inputs:
         - manual_merge: 'no'
-
-  _commits:
-    steps:
-    - script@1.1.5:
-        title: Check git commit history
-        inputs:
-        - content: bin/commits
-        - is_debug: 'yes'
 
   _deploy_to_apple:
     steps:
@@ -303,14 +294,6 @@ workflows:
             echo "=========== DEPLOY =========="
             find $BITRISE_DEPLOY_DIR | sort
             echo "============================="
-        - is_debug: 'yes'
-
-  _tags:
-    steps:
-    - script@1.1.5:
-        title: Check for release tags
-        inputs:
-        - content: bin/tags
         - is_debug: 'yes'
 
   _test:
