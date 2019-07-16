@@ -16,12 +16,42 @@ app:
 workflows:
 
   build:
+    steps:
+    - script@1.1.5:
+        title: BUILD
+        inputs:
+        - content: |-
+            #!/bin/bash -e
+            echo Running build workflow ...
+        - is_debug: $DEBUG_YES_NO
+
+  deploy:
+    steps:
+    - script@1.1.5:
+        title: DEPLOY
+        inputs:
+        - content: |-
+            #!/bin/bash -e
+            echo Running deploy workflow ...
+        - is_debug: $DEBUG_YES_NO
+
+  release:
+    steps:
+    - script@1.1.5:
+        title: RELEASE
+        inputs:
+        - content: |-
+            #!/bin/bash -e
+            echo Running release workflow ...
+        - is_debug: $DEBUG_YES_NO
+
+  xbuild:
     after_run:
     - _cache_pull
     - _check
     - _install
-    #- _lint
-    #- _test
+    - _lint
+    - _test
     - _download_keystore
     - _apk
     #- _ipa
@@ -30,13 +60,13 @@ workflows:
     - _report
     - _notify
 
-  deploy:
+  xdeploy:
     after_run:
     - _cache_pull
     - _check
     - _github_release
+    - _deploy_to_google
     #- _deploy_to_apple
-    #- _deploy_to_google
     - _report
     - _notify
 
@@ -48,7 +78,7 @@ workflows:
     after_run:
     - _test
 
-  release:
+  xrelease:
     after_run:
     - _cache_pull
     - _deploy_to_apple

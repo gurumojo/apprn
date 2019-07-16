@@ -12,9 +12,9 @@ app:
 trigger_map:
 - pull_request_source_branch: "*"
   workflow: build
-- push_branch: master
+- tag: "*.*.*-rc*"
   workflow: deploy
-- tag: "v*"
+- tag: "v*.*.*"
   workflow: release
 
 workflows:
@@ -25,23 +25,19 @@ workflows:
     - activate-ssh-key@4.0.3:
         run_if: enveq "SSH_RSA_PRIVATE_KEY" "" | not
         inputs:
-        - verbose: $DEBUG_TRUE_FALSE
+        - verbose: "$DEBUG_TRUE_FALSE"
     - git-clone@4.0.14:
         inputs:
         - manual_merge: 'no'
-        #- reset_repository: 'Yes'
     - cache-push@2.2.0:
         inputs:
         - cache_paths: "$BITRISE_CACHE_SEARCH_PATHS"
         - ignore_check_on_paths: "$BITRISE_CACHE_IGNORE_PATHS"
-        - is_debug_mode: $DEBUG_TRUE_FALSE
-    - script@1.1.5:
-        title: Bitrise via Repository
+        - is_debug_mode: "$DEBUG_TRUE_FALSE"
+    - bitrise-run@0.9.1:
         inputs:
-        - content: |-
-            #!/bin/bash -ex
-            bitrise run $BITRISE_TRIGGERED_WORKFLOW_ID
-        - is_debug: $DEBUG_YES_NO
+        - workflow_id: "$BITRISE_TRIGGERED_WORKFLOW_ID"
+        - bitrise_config_path: "$BITRISE_CONFIG_PATH"
 
   build:
     after_run:
@@ -54,222 +50,4 @@ workflows:
   release:
     after_run:
     - _run_from_repo
-
-
-# Input Environment Variables
-#
-#
-# Android Build
-#
-# MODULE
-# PROJECT_LOCATION
-# VARIANT
-#
-#
-# Android Lint
-#
-# MODULE
-# PROJECT_LOCATION
-# VARIANT
-#
-#
-# Android Unit Test
-#
-# MODULE
-# PROJECT_LOCATION
-# VARIANT
-#
-#
-# Cache Pull
-#
-# DEBUG_TRUE_FALSE
-#
-#
-# Cache Push
-#
-# DEBUG_TRUE_FALSE
-#
-#
-# Deploy to Bitrise.io
-#
-# DEBUG_TRUE_FALSE
-#
-#
-# Install, Lint, Unit Test
-#
-# DEBUG_YES_NO
-#
-#
-# Install Missing Android Tools
-#
-# PROJECT_LOCATION/gradlew
-#
-#
-# Prepare Slack Notification
-#
-# DEBUG_YES_NO
-#
-#
-# Sign APK
-#
-# SIGNED_ARTIFACT_NAME
-#
-#
-# Set iOS Info.plist unified
-#
-# APP_ICON_ASSET_CATALOG
-# APP_LAUNCH_IMAGES_ASSET_CATALOG
-# APP_LAUNCH_SCREEN
-# BUNDLE_DISPLAY_NAME
-# BUNDLE_IDENTIFIER
-# BUNDLE_NAME
-# BUNDLE_VERSION
-# BUNDLE_VERSION_SHORT
-# INFO_PLIST_FILE
-#
-#
-# Slack
-#
-# DEBUG_YES_NO
-# SLACK_BOT_USERNAME
-# SLACK_BOT_USERNAME_ON_ERROR
-# SLACK_CHANNEL
-# SLACK_CHANNEL_ON_ERROR
-# SLACK_COLOR_CODE
-# SLACK_COLOR_CODE_ON_ERROR
-# SLACK_EMOJI
-# SLACK_EMOJI_ON_ERROR
-# SLACK_FOOTER_ICON_URL
-# SLACK_FOOTER_TEXT
-# SLACK_HEADER
-# SLACK_HEADER_ON_ERROR
-# SLACK_HYPERLINK
-# SLACK_HYPERLINK_ON_ERROR
-# SLACK_ICON_URL
-# SLACK_ICON_URL_ON_ERROR
-# SLACK_IMAGE_URL
-# SLACK_IMAGE_URL_ON_ERROR
-# SLACK_MESSAGE
-# SLACK_MESSAGE_ON_ERROR
-# SLACK_THUMBNAIL_URL
-# SLACK_THUMBNAIL_URL_ON_ERROR
-#
-#
-# Xcode Analyze
-#
-# FORCE_CODE_SIGN_IDENTITY
-# FORCE_PROVISIONING_PROFILE_UUID
-#
-#
-# Xcode Archive
-#
-# CLEAN_BUILD_YES_NO
-# CONFIGURATION_NAME
-# DEVELOPER_PORTAL_TEAM
-# EXPORT_ZIP_YES_NO
-# FORCE_CODESIGN_IDENTITY
-# FORCE_DEVELOPER_PORTAL_TEAM
-# FORCE_PROVISIONING_PROFILE_SPECIFIER
-# FORCE_PROVISIONING_PROFILE_UUID
-# XCODEBUILD_EXPORT_METHOD
-# XCODEBUILD_OPTIONS
-#
-#
-#
-#
-# Output Environment Variables
-#
-#
-# Activate SSH key
-#
-# SSH_AUTH_SOCK
-#
-#
-# Android Build
-#
-# BITRISE_AAB_PATH
-# BITRISE_AAB_PATH_LIST
-# BITRISE_APK_PATH
-# BITRISE_APK_PATH_LIST
-# BITRISE_MAPPING_PATH
-#
-#
-# Android Sign
-#
-# BITRISE_AAB_PATH
-# BITRISE_APK_PATH
-# BITRISE_SIGNED_AAB_PATH
-# BITRISE_SIGNED_APK_PATH
-#
-#
-# APK Info
-#
-# ANDROID_APK_FILE_SIZE
-# ANDROID_APP_NAME
-# ANDROID_APP_PACKAGE_NAME
-# ANDROID_APP_VERSION_CODE
-# ANDROID_APP_VERSION_NAME
-# ANDROID_ICON_PATH
-#
-#
-# Bitrise.io Cache:Pull
-#
-# BITRISE_CACHE_INFO_PATH
-#
-#
-# Deploy to Bitrise.io
-#
-# BITRISE_PUBLIC_INSTALL_PAGE_URL
-# BITRISE_PUBLIC_INSTALL_PAGE_URL_MAP
-#
-#
-# Git Clone Repository
-#
-# GIT_CLONE_COMMIT_AUTHOR_EMAIL
-# GIT_CLONE_COMMIT_AUTHOR_NAME
-# GIT_CLONE_COMMIT_COMMITER_EMAIL
-# GIT_CLONE_COMMIT_COMMITER_NAME
-# GIT_CLONE_COMMIT_COUNT
-# GIT_CLONE_COMMIT_HASH
-# GIT_CLONE_COMMIT_MESSAGE_BODY
-# GIT_CLONE_COMMIT_MESSAGE_SUBJECT
-#
-#
-# IPA Info
-#
-# IOS_APP_DISPLAY_NAME
-# IOS_APP_NAME
-# IOS_APP_PROFILE_NAME
-# IOS_APP_VERSION_CODE
-# IOS_APP_VERSION_NAME
-# IOS_ICON_PATH
-# IOS_IPA_FILE_SIZE
-# IOS_IPA_PACKAGE_NAME
-#
-#
-# Xcode Archive & Export for iOS
-#
-# BITRISE_IPA_PATH
-# BITRISE_APP_DIR_PATH
-# BITRISE_DSYM_DIR_PATH
-# BITRISE_DSYM_PATH
-# BITRISE_XCARCHIVE_PATH
-# BITRISE_XCARCHIVE_ZIP_PATH
-# BITRISE_XCODE_ARCHIVE_RAW_RESULT_TEXT_PATH
-# BITRISE_IDEDISTRIBUTION_LOGS_PATH
-
-
-# Recommended iOS Workflow
-
-# * Activate SSH key (RSA private key)
-# * Git Clone Repository
-# * Bitrise.io Cache:Pull (for CocoaPods cache)
-# * Run CocoaPods install (if I have pods)
-# * Bitrise.io Cache:Push
-# * Recreate User Schemes
-# * Set Xcode Project Build Number
-# * Certificate and profile installer (or iOS Auto Provision)
-# * Xcode Archive & Export for iOS
-# * Deploy to Bitrise.io - Apps, Logs, Artifacts
-# * Send a Slack message (optional)
 
