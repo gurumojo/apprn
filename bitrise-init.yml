@@ -5,6 +5,7 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 app:
   envs:
   - BITRISE_CACHE_SEARCH_PATHS: '.'
+  - BITRISE_CONFIG_PATH: bitrise.yml
   - DEBUG: '1'
   - DEBUG_YES_NO: 'yes'
   - DEBUG_TRUE_FALSE: 'true'
