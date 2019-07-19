@@ -1,8 +1,17 @@
 #!/bin/bash -e
 
-if [ "$DEBUG" == "1" ] || [ "$DEBUG" == "true" ] ;then
+if [ -n "$DEBUG" ] ;then
   set -x
 fi
+
+if [ -n "$MOCK" ] ;then
+  envman () {
+    echo $@
+  }
+fi
+
+# with too many tags github pukes on transfer limits
+# bump the value as needed by creating a config file
 
 #mkdir -p ~/.envman
 #echo -e '{"env_bytes_limit_in_kb": 30}' > ~/.envman/configs.json
@@ -13,10 +22,7 @@ fi
 cache="${BITRISE_CACHE_DIR:-.}/latest"
 current=$(git rev-parse --verify origin/master)
 
-if [ ! -f "$cache" ] ;then
-  echo " (!) $cache missing ..."
-  echo "Saving git commit in local cache."
-else
+if [ -f "$cache" ] ;then
   latest=$(cat $cache)
 fi
 
@@ -32,11 +38,11 @@ echo "$GIT_LATEST_COMMIT" > "$cache"
 envman add --key GIT_LATEST_COMMIT --value "$GIT_LATEST_COMMIT"
 
 
-# parse current tag
+# export tag info
 
 git fetch --tags
-export GIT_CURRENT_TAG=$(git describe --abbrev=0 --tags)
-envman add --key GIT_CURRENT_TAG --value "$GIT_CURRENT_TAG"
+export GIT_CURRENT_TAG=$(git describe --tags --abbrev=0)
+envman add --key GIT_CURRENT_TAG --value $GIT_CURRENT_TAG
 
 if [[ $GIT_CURRENT_TAG =~ "rc" ]] ;then
   version=$GIT_CURRENT_TAG
@@ -45,31 +51,50 @@ else
 fi
 
 IFS='.' read -ra semver <<< ${version%"-rc"*}
+count=0
+for x in ${semver[@]} ;do
+  count=$((count+1))
+  if [ -n "$BUMP_MAJOR" ] ;then
+    major=${x#v}
+    update="v$((major+1)).0.0"
+    break
+  fi
+  if [ -n "$BUMP_MINOR" ] && (($count == 2)) ;then
+    update="${update}.$((x+1)).0"
+    break
+  fi
+  if (($count == 3)) && [ "$GIT_CURRENT_TAG" != "$version" ] ;then
+    # bump patch level; 1st release candidate
+    bump=$((x+1))
+  fi
+  if [ -n "$update" ] ;then
+    if [ -n "$bump" ] ;then
+      update="${update}.${bump}"
+    else
+      update="${update}.${x}"
+    fi
+  else
+    if [ -n "$bump" ] ;then
+      update=$bump
+    else
+      update=$x
+    fi
+  fi
+done
 
-if [ "$GIT_CURRENT_TAG" == "$version" ] ;then
-	# no bump on patch; already a release candidate
-	patch="${semver[0]}.${semver[1]}.${semver[2]}"
+if [ -n "$RELEASE" ] ;then
+  # release workflow
+  export GIT_UPDATE_TAG="${update}"
 else
-	bump=$((${semver[2]}+1))
-	patch="${semver[0]}.${semver[1]}.${bump}"
-fi
-
-candidate=${version#*"rc"}
-
-
-# export update tag
-
-if [ "$GIT_CURRENT_TAG" == "$candidate" ] ;then
-	# release workflow
-	export GIT_UPDATE_TAG="${patch}"
-else
-	# deploy workflow
-	if [[ $candidate > 0 ]] || [[ $candidate != '' ]] ;then
-		iteration=$(($candidate+1))
-	else
-		iteration=1
-	fi
-	export GIT_UPDATE_TAG="${patch}-rc${iteration}"
+  # deploy workflow
+  candidate=${version#*"rc"}
+  if [[ $candidate > 0 ]] && [ -z "$BUMP_MAJOR" ] && [ -z "$BUMP_MINOR" ] ;then
+    iteration=$(($candidate+1))
+  else
+    iteration=1
+  fi
+  export GIT_UPDATE_TAG="${update}-rc${iteration}"
 fi
 
 envman add --key GIT_UPDATE_TAG --value $GIT_UPDATE_TAG
+
