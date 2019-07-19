@@ -16,36 +16,6 @@ app:
 workflows:
 
   build:
-    steps:
-    - script@1.1.5:
-        title: BUILD
-        inputs:
-        - content: |-
-            #!/bin/bash -e
-            echo Running build workflow ...
-        - is_debug: $DEBUG_YES_NO
-
-  deploy:
-    steps:
-    - script@1.1.5:
-        title: DEPLOY
-        inputs:
-        - content: |-
-            #!/bin/bash -e
-            echo Running deploy workflow ...
-        - is_debug: $DEBUG_YES_NO
-
-  release:
-    steps:
-    - script@1.1.5:
-        title: RELEASE
-        inputs:
-        - content: |-
-            #!/bin/bash -e
-            echo Running release workflow ...
-        - is_debug: $DEBUG_YES_NO
-
-  xbuild:
     after_run:
     - _cache_pull
     - _check
@@ -60,7 +30,7 @@ workflows:
     - _report
     - _notify
 
-  xdeploy:
+  deploy:
     after_run:
     - _cache_pull
     - _check
@@ -78,7 +48,7 @@ workflows:
     after_run:
     - _test
 
-  xrelease:
+  release:
     after_run:
     - _cache_pull
     - _deploy_to_apple
@@ -119,7 +89,7 @@ workflows:
   _cache_push:
     steps:
     - cache-push@2.2.0:
-        run_if: true
+        run_if: .IsCI
         inputs:
         - cache_paths: "$BITRISE_CACHE_SEARCH_PATHS"
         - ignore_check_on_paths: "$BITRISE_CACHE_IGNORE_PATHS"
@@ -151,7 +121,7 @@ workflows:
         - content: |-
             #!/bin/bash -e
             echo "TODO: Deploy to Apple"
-        - is_debug: 'yes'
+        - is_debug: $DEBUG_YES_NO
 
   _deploy_to_bitrise:
     steps:
@@ -169,7 +139,7 @@ workflows:
         - content: |-
             #!/bin/bash -e
             echo "TODO: Deploy to Google"
-        - is_debug: 'yes'
+        - is_debug: $DEBUG_YES_NO
 
   _download_keystore:
     steps:
@@ -177,7 +147,7 @@ workflows:
         title: Stash gradle properties
         inputs:
         - content: bin/property-file
-        - is_debug: 'yes'
+        - is_debug: $DEBUG_YES_NO
     - file-downloader@1.0.1:
         inputs:
         - destination: "$ANDROID_KEYSTORE_FILE"
@@ -217,7 +187,7 @@ workflows:
         title: Install build dependencies
         inputs:
         - content: yarn
-        - is_debug: 'yes'
+        - is_debug: $DEBUG_YES_NO
 
   _ipa:
     steps:
@@ -256,7 +226,7 @@ workflows:
         title: Run code linter
         inputs:
         - content: yarn run lint
-        - is_debug: 'yes'
+        - is_debug: $DEBUG_YES_NO
 
   _notify:
     steps:
@@ -327,7 +297,7 @@ workflows:
             echo "=========== DEPLOY =========="
             find $BITRISE_DEPLOY_DIR | sort
             echo "============================="
-        - is_debug: 'yes'
+        - is_debug: $DEBUG_YES_NO
 
   _test:
     steps:
@@ -335,5 +305,5 @@ workflows:
         title: Run unit tests
         inputs:
         - content: yarn test
-        - is_debug: 'yes'
+        - is_debug: $DEBUG_YES_NO
 

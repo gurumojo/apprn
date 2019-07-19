@@ -13,6 +13,8 @@ app:
 trigger_map:
 - pull_request_source_branch: "*"
   workflow: build
+- push_branch: "master"
+  workflow: build
 - tag: "*.*.*-rc*"
   workflow: deploy
 - tag: "v*.*.*"
@@ -31,6 +33,7 @@ workflows:
         inputs:
         - manual_merge: 'no'
     - cache-push@2.2.0:
+        run_if: .IsCI
         inputs:
         - cache_paths: "$BITRISE_CACHE_SEARCH_PATHS"
         - ignore_check_on_paths: "$BITRISE_CACHE_IGNORE_PATHS"
